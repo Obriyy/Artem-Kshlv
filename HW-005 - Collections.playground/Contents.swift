@@ -2,9 +2,9 @@ import UIKit
 
 //Task 1
 
-var fibonacciArray: [Int] = []
+let fibonacciArray = sequence(first: (0, 1), next: { ($1, $0 + $1) })
+.prefix(11).map{$0.0}
 
-fibonacciArray = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
 
 let reverseArray = fibonacciArray.reversed().map { $0 }
 let reverseArray1 = fibonacciArray.sorted(by: >)
