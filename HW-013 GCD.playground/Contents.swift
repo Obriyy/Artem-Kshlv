@@ -8,61 +8,60 @@ enum ErrorOfArray: Error {
    
 }
 
-private (set) var emojiArray = [Character]()
-
-let serialQueue = DispatchQueue(label: "com.serial")
-let queue = DispatchQueue(label: "com.concurrent", qos: .userInteractive, attributes: .concurrent)
-let queue1 = DispatchQueue(label: "com.concurrent1", qos: .userInitiated, attributes: .concurrent)
-
-var emoji: Character = " "
-var emoji1: Character = " "
-
-func task(_: Character) {
-   for _ in emojiArray.count..<125 {
-      emojiArray.append(emoji)
-      
-      print("\(emoji) on \(emojiArray.count), with value \(qos_class_self().rawValue)")
+class Emoji {
+   enum Constants {
+      static let emojiCount = 125
    }
-}
-
-private (set) var workItem: DispatchWorkItem = DispatchWorkItem {
-   serialQueue.sync {
-      if emojiArray.count != 125 {
-         queue.async {
-            for _ in emojiArray.count..<125 {
-               emojiArray.append(emoji)
+   private var emojiArray = [Character]()
+   
+   private let serialQueue = DispatchQueue(label: "com.serial")
+   private let concurentEmojiQueue = DispatchQueue(label: "com.concurrent.emoji", qos: .userInteractive, attributes: .concurrent)
+   
+   private let progress = Progress(totalUnitCount: Int64(Constants.emojiCount))
+   private let semaphore = DispatchSemaphore(value: 1)
+   private let group = DispatchGroup()
+   
+   private func createTask() -> DispatchWorkItem {
+      DispatchWorkItem { [weak self] in
+         if let self = self {
+            if self.emojiArray.count < 125 {
+               self.emojiArray.append("🦋")
+               
+               self.progress.completedUnitCount = Int64(self.emojiArray.count)
+               print(String(format: "progress - %.1f %%", self.progress.fractionCompleted * 100))
+               
+               if self.emojiArray.count % 15 == 0 {
+                  sleep(3)
+               }
+               
+               self.semaphore.signal()
+               self.group.leave()
+               
             }
          }
-         queue1.async {
-            for _ in emojiArray.count..<125 {
-               emojiArray.append(emoji1)
-            }
-         }
-      } else {
-         "You can't add it"
+      }
+   }
+   
+   
+   func executeTask() {
+      
+      group.notify(queue: .main) {
+         self.emojiArray.forEach({ print($0) })
       }
       
+      concurentEmojiQueue.async {
+         while self.emojiArray.count < 125 {
+            self.semaphore.wait()
+            self.group.enter()
+            self.createTask().perform()
+         }
+      }
    }
 }
 
-workItem.notify(queue: serialQueue)  {
-   if emojiArray.count == 125 {
-      print("Reached the limit")
-   }
-}
-
-DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(4)) {
-   workItem.cancel()
-   print("cancelled")
-}
-emoji = "🦋"
-emoji1 = "🧞‍♀️"
-queue.async(execute: workItem)
-queue1.async(execute: workItem)
-
-
-print(emojiArray.count)
-
+let testEmojiObj = Emoji()
+testEmojiObj.executeTask()
+print(testEmojiObj)
 
 
 
