@@ -24,11 +24,15 @@ class MyViewController : UIViewController {
       let button = UIButton()
       button.backgroundColor = .systemIndigo
       button.frame = CGRect(x: 135, y: 500, width: 100, height: 30)
-//      button.addTarget(self, action: #selector(method), for: .touchUpInside)
+      button.addTarget(self, action: #selector(MyViewController.pressMe(_:)), for: .touchUpInside)
       
       view.addSubview(label)
       view.addSubview(button)
       self.view = view
+   }
+   
+   @objc func pressMe(_ sender: UIButton) {
+      print("Hello from nowhere")
    }
    
    override func viewDidLoad() {
@@ -55,6 +59,7 @@ class MyViewController : UIViewController {
          let location = touch.location(in: view)
          
          if mooving {
+            CATransaction.begin()
             myView.frame.origin.x = myView.frame.origin.x + (location.x - x)
             myView.frame.origin.y = myView.frame.origin.y + (location.y - y)
             
@@ -62,6 +67,8 @@ class MyViewController : UIViewController {
             y = location.y
             
             label.text = "x = \(myView.frame.origin.x), y = \(myView.frame.origin.y), wigth = \(myView.frame.width), heigh = \(myView.frame.height)"
+            
+            CATransaction.commit()
          }
       }
    }
