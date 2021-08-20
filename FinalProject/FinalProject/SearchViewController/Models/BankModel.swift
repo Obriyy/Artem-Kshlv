@@ -8,11 +8,9 @@
 
 import Foundation
 
-public struct BankModel {
-    
+struct BankModel: Codable {
     let id: Int
-    let type_id: Int
-    let title: Int
     let rate: Int
-    
+    let title: String
+    let type_id: Int
 }

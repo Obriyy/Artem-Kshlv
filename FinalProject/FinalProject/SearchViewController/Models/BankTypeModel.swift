@@ -10,7 +10,7 @@ import Foundation
 
 public struct BankTypeModel {
     let id: Int
-    let alias: String
-    let title: String
+    let alias: AliasType
+    let title: AliasTypeTitle
     let rate: Int
 }

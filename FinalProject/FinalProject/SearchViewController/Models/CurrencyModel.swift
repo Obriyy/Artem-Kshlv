@@ -9,9 +9,9 @@
 import Foundation
 
 public struct Currencies {
-    let id: Int
-    let code: Int
-    let title: String
-    let verbal: String
-    let symbol: String
+    let id: CurrencyId
+    let code: CurrencyCode
+    let title: CurrencyTitle
+    let verbal: CurrencyVerbal
+    let symbol: CurrencySymbol
 }

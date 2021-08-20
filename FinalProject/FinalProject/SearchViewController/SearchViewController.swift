@@ -9,47 +9,129 @@
 import UIKit
 
 final class SearchViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-   @IBOutlet weak var SearchView: UIView!
-   @IBOutlet private weak var searchResultTableView: UITableView!
-   
-   
-   
-   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-      return dataSource.count
-   }
-   
-   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-      let cell = tableView.dequeueReusableCell(withIdentifier: "SearchResultTableViewCell", for: indexPath)
-      cell.textLabel?.text = dataSource[indexPath.row]
-      return cell
-   }
-   
-   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-      tableView.deselectRow(at: indexPath, animated: true)
-      
-      performSegue(withIdentifier: "SearchResultTableViewCell", sender: indexPath)
-   }
-   
-   func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-      return tableView == searchResultTableView ? 180 : 40
-   }
+    @IBOutlet weak var SearchView: UIView!
+    @IBOutlet private weak var searchResultTableView: UITableView!
+    
+    static var array = [BankModel]()
+    let responseObject = DataResponse()
+    
+    public func urlCreation(path: HTTPCall) -> URL {
+        let api = "https://hryvna-today.p.rapidapi.com"
+        let endpoint = "\(path.rawValue)"
+        
+        guard let url = URL(string: api + endpoint) else {return URL(string: "")!}
+        
+        return url
+    }
+    
+    public func createRequest(httpRequest: HTTPCall) {
+        
+        let headers = Constants.headers
+                
+        let request = NSMutableURLRequest(url: urlCreation(path: httpRequest),
+                                          cachePolicy: .useProtocolCachePolicy,
+                                          timeoutInterval: 10.0)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
+            if error != nil {
+                print(error!)
+            } else {
+                guard let data = data else {return}
+                let jsonObject = Data.jsonFromData(data)
+                guard let json = jsonObject else {return}
+                if let dataArray = json["data"] as? [[String: Any]] {
+                    switch httpRequest {
+                        case .landing:
+                            self.responseObject.landing(dataArray)
+                        //                    case .bankRates:
+                        //
+                        //                    case .averageRates:
+                        //
+                        //                    case .todayRates:
+                        //
+                        //                    case .currencyList:
+                        //
+                        //                    case .bankTypesList:
+                        //
+                        case .bankList:
+                            self.responseObject.bankList(dataArray)
+                        //                    case .convertRates:
+                        //
+                        default:
+                            break
+                    }
+                } else {
+                    print("error")
+                }
 
-   private (set) var dataSource: [String] = [
-      "OTP Bank",
-      "PrivatBank",
-      "Raiffeisen Bank Aval",
-      "Alfa Bank",
-      "Credit Agricole"
-   ]
-   
-   
+                guard let httpResponse = response as? HTTPURLResponse,
+                      (200...299).contains(httpResponse.statusCode) else {return}
+                guard let mime = response?.mimeType, mime == "application/json" else {
+                    print("Wrong Mime type!")
+                    return
+                }
+                print(httpResponse.statusCode)
+                print(SearchViewController.array)
+                
+                DispatchQueue.main.async {
+                    self.searchResultTableView.reloadData()
+                }
+            }
+        })
+        dataTask.resume()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        print(TableViewController.createRequest())
-   }
-   
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.createRequest(httpRequest: .bankList)
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return SearchViewController.array.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SearchResultTableViewCell", for: indexPath)
+        //guard let array = SearchViewController.array[indexPath.row] as? [String: Any] else {return UITableViewCell()}
+        cell.textLabel?.text = SearchViewController.array[indexPath.row].title
+//        cell.detailTextLabel?.text = array.title
+        //dataSource[indexPath.row]
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        performSegue(withIdentifier: "SearchResultTableViewCell", sender: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return tableView == searchResultTableView ? 180 : 40
+    }
+    
+    private (set) var dataSource: [String] = [
+            "OTP Bank",
+            "PrivatBank",
+            "Raiffeisen Bank Aval",
+            "Alfa Bank",
+            "Credit Agricole"
+    ]
+    
 }
+
+
+
+
 //      var values:[GitObject] = []
 //
 //      let urlSession = URLSession.shared
