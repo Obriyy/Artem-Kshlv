@@ -10,8 +10,37 @@ import UIKit
 
 class SearchResultTableViewCell: UITableViewCell {
     
-    @IBOutlet weak var nameOfTheBank: UILabel!
-    
+    @IBOutlet weak var nameOfTheBank: UILabel! {
+        didSet {
+            nameOfTheBank.numberOfLines = 0
+        }
+    }
+    @IBOutlet weak var averageRate: UILabel! {
+        didSet {
+            averageRate.numberOfLines = 0
+        }
+    }
+    @IBOutlet weak var bankType: UILabel! {
+        didSet {
+            bankType.numberOfLines = 0
+        }
+    }
+    @IBOutlet weak var currencySymbol: UILabel! {
+        didSet {
+            currencySymbol.numberOfLines = 0
+        }
+    }
+    @IBOutlet weak var currencyName: UILabel! {
+        didSet {
+            currencyName.numberOfLines = 0
+        }
+    }
+    @IBOutlet weak var currencyRates: UILabel! {
+        didSet {
+            currencyName.numberOfLines = 0
+        }
+    }
+
     
 //    let titleLabel: UILabel = {
 //        let lable = UILabel()

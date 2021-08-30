@@ -12,14 +12,14 @@ struct DataResponse {
     
     func landing(_ dataArray: [[String : Any]]) {
         for data in dataArray {
-            let avg = data["avg"] as? Int ?? NSNotFound
-            let days = data["days"] as? Date ?? Date()
+            let avg = data["avg"] as? String ?? ""
+            let days = data["days"] as? String ?? ""
             let banks = data["banks"] as? String ?? ""
 
             let object = LandingModel(avg: avg, days: days, banks: banks)
             
             DispatchQueue.main.async {
-                //SearchViewController.array.append(object)
+                SearchViewController.array.append(object)
             }
         }
     }

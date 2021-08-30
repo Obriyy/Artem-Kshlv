@@ -9,7 +9,7 @@
 import Foundation
 
 struct LandingModel: Codable {
-    let avg: Int
-    let days: Date
+    let avg: String
+    let days: String
     let banks: String
 }

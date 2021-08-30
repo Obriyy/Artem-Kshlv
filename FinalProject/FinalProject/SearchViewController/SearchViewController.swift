@@ -12,7 +12,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
     @IBOutlet weak var SearchView: UIView!
     @IBOutlet private weak var searchResultTableView: UITableView!
     
-    static var array = [BankModel]()
+    static var array = [Any]()
     let responseObject = DataResponse()
     
     public func urlCreation(path: HTTPCall) -> URL {
@@ -65,7 +65,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
                             break
                     }
                 } else {
-                    print("error")
+                    print("error...................")
                 }
 
                 guard let httpResponse = response as? HTTPURLResponse,
@@ -102,8 +102,8 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SearchResultTableViewCell", for: indexPath)
-        //guard let array = SearchViewController.array[indexPath.row] as? [String: Any] else {return UITableViewCell()}
-        cell.textLabel?.text = SearchViewController.array[indexPath.row].title
+        guard let array = SearchViewController.array as? [BankModel] else {return UITableViewCell()}
+        cell.textLabel?.text = "\(array[indexPath.row].title)"
 //        cell.detailTextLabel?.text = array.title
         //dataSource[indexPath.row]
         return cell
